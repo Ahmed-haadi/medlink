@@ -1,10 +1,28 @@
+import { useEffect, useState } from 'react'
 import AppLayout from '../../components/AppLayout'
-import { Card, Metric, Topbar } from '../../components/DashboardUi'
+import { Topbar } from '../../components/DashboardUi'
+import { currentProfile, patientAppointments, reports } from '../../services/modules'
 
 export default function PatientDashboard() {
-  return <AppLayout role="patient"><Topbar /><main className="dashboard">
-    <div className="welcome-row"><div><p className="eyebrow">YOUR HEALTH OVERVIEW</p><h1>Welcome back, Sarah.</h1><p>Your health journey is looking great today. You have 2 notifications.</p></div><button className="primary">▣ Schedule Appointment</button></div>
-    <div className="dashboard-grid patient-grid"><div><Card title="Recent Activities" className="activities"><a>View All</a><div className="two-up"><div className="activity">▣ <b>Upcoming video call</b><span>Dr. Aisha Thorne · 2:00 PM</span><em>Join Meeting →</em></div><div className="activity">▤ <b>New prescription</b><span>Amoxicillin 500mg · Available</span><em>Pharmacy Link ↗</em></div></div></Card><div className="metrics-row"><Metric label="♡ Heart Rate" value="72 bpm" accent="red" /><Metric label="⌁ BP" value="120/80" note="• Normal Range" /><Metric label="☾ Sleep" value="8.5 hrs" note="Deep sleep: 2.5 hrs" /></div></div><aside><Card className="find-card"><h2>Find a Specialist</h2><p>Search from over 2,000 verified doctors worldwide.</p><div className="dark-search">⌕ Specialty or Doctor Name</div><button className="primary">Search Now</button><small>● ● ● ● Available now</small></Card><Card title="Latest Reports"><ul className="report-list"><li><b>Comprehensive Blood Panel</b><span>Updated 2 days ago</span></li><li><b>Annual Physical Summary</b><span>Updated Oct 12, 2023</span></li></ul><button className="outline">View Records Vault</button></Card></aside></div>
+  const [profile, setProfile] = useState<any>(null)
+  const [appointments, setAppointments] = useState<any[]>([])
+  const [reportRows, setReportRows] = useState<any[]>([])
+  const [notice, setNotice] = useState('')
+
+  useEffect(() => {
+    Promise.all([currentProfile(), patientAppointments(), reports()])
+      .then(([profileRow, appointmentRows, reportsRows]) => { setProfile(profileRow); setAppointments(appointmentRows); setReportRows(reportsRows.slice(0, 3)) })
+      .catch(error => setNotice(error instanceof Error ? error.message : 'Unable to load your dashboard.'))
+  }, [])
+
+  return <AppLayout role="patient"><Topbar /><main className="dashboard patient-dashboard-v2">
+    <header className="patient-hero"><div><p className="eyebrow">YOUR HEALTH OVERVIEW</p><h1>Welcome back{profile?.full_name ? `, ${profile.full_name}` : ''}.</h1><p>Your dashboard only shows information saved to your MedLink account.</p></div><a className="primary" href="#/patient/doctors"><span>+</span> Schedule Appointment</a></header>
+    <div className="patient-content-grid"><section className="activity-section"><div className="section-title-row"><div><p className="eyebrow">CARE TIMELINE</p><h2>Appointments</h2></div><a href="#/patient/consultations">View all</a></div><div className="timeline">{appointments.length ? appointments.map(item => <TimelineItem key={item.id} icon="▶" label={item.status} title={`Consultation with ${item.doctor?.full_name || 'your doctor'}`} meta={`${new Date(item.scheduled_at).toLocaleString()} · ${item.reason || 'No reason supplied'}`} action="Open" href="#/patient/consultations" />) : <Empty text="No appointments have been saved yet." />}</div></section>
+      <aside className="care-rail"><section className="specialist-panel"><span className="panel-kicker">VERIFIED CARE NETWORK</span><h2>Find the right specialist</h2><p>Browse doctors who are verified and active in the MedLink database.</p><a className="specialist-search" href="#/patient/doctors"><span>⌕</span> Specialty or doctor name</a><a className="specialist-button" href="#/patient/doctors">Search doctors <span>→</span></a></section><section className="records-panel"><div className="section-title-row"><div><p className="eyebrow">RECORDS</p><h2>Latest reports</h2></div><a href="#/patient/reports">View all</a></div>{reportRows.length ? reportRows.map(report => <Report key={report.id} title={report.title} date={new Date(report.created_at).toLocaleDateString()} />) : <Empty text="No medical reports have been saved yet." />}</section></aside>
+    </div>{notice && <p className="auth-message">{notice}</p>}
   </main></AppLayout>
 }
 
+function TimelineItem({ icon, label, title, meta, action, href }: { icon: string; label: string; title: string; meta: string; action: string; href: string }) { return <article className="timeline-item"><span className="timeline-icon">{icon}</span><div><small>{label}</small><h3>{title}</h3><p>{meta}</p></div><a href={href}>{action} <span>→</span></a></article> }
+function Report({ title, date }: { title: string; date: string }) { return <a className="report-row-v2" href="#/patient/reports"><span className="report-document">▤</span><div><b>{title}</b><small>{date}</small></div></a> }
+function Empty({ text }: { text: string }) { return <p className="dashboard-empty">{text}</p> }

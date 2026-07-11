@@ -1,10 +1,20 @@
+import { useEffect, useMemo, useState } from 'react'
 import AppLayout from '../../components/AppLayout'
 import { Card, Metric, Topbar } from '../../components/DashboardUi'
+import { adminUsers, pendingVerifications } from '../../services/modules'
 
-const users = [['JD', 'John Doe', 'john.doe@email.com', 'Patient', 'ACTIVE'], ['MK', 'Maria Kowalski', 'm.kowalski@hospital.org', 'Doctor', 'ACTIVE'], ['LB', 'Lucas Brown', 'brown@med.com', 'Patient', 'SUSPENDED']]
-export default function AdminDashboard() { return <AppLayout role="admin"><Topbar search="Search systems, users, or records…" /><main className="dashboard admin-dashboard">
-  <h1>Admin Management Portal</h1><div className="summary-row"><Metric label="TOTAL PATIENTS" value="12,842" note="↑ 4.2%" /><Metric label="VERIFIED DOCTORS" value="1,402" note="↑ 2.1%" /><Card title="WEEKLY CONSULTATIONS" className="mini-chart"><small>Week 42</small><div className="bar-chart">{[32, 50, 70, 96, 28].map((height, i) => <span key={i} style={{ height: `${height}%` }} />)}</div></Card></div>
-  <div className="dashboard-grid admin-grid"><Card title="User Management" className="table-card"><button className="new-user">＋ New User</button><div className="user-table"><div className="table-head"><span>USER</span><span>ROLE</span><span>STATUS</span><span>ACTIONS</span></div>{users.map(([initials,name,email,role,status]) => <div className="table-row" key={name}><span className="initials">{initials}</span><div><b>{name}</b><small>{email}</small></div><span>{role}</span><span className={`status ${status.toLowerCase()}`}>{status}</span><span>⋮</span></div>)}</div></Card><aside><Card title="Pending Verifications" className="verification"><div><b>Dr. Aris Thorne</b><small>Cardiologist · 12 yrs exp.</small><button className="approve">Approve</button><button className="reject">Reject</button></div><div><b>Dr. Samuel Higgins</b><small>Pediatrics · 8 yrs exp.</small><button className="approve">Approve</button><button className="reject">Reject</button></div></Card></aside></div>
-  <Card className="maintenance">△ System maintenance scheduled in 2 hours. Some verification services may be temporarily unavailable.</Card>
-</main></AppLayout> }
+export default function AdminDashboard() {
+  const [users, setUsers] = useState<any[]>([])
+  const [checks, setChecks] = useState<any[]>([])
+  const [notice, setNotice] = useState('')
+  useEffect(() => { Promise.all([adminUsers(), pendingVerifications()]).then(([userRows, verificationRows]) => { setUsers(userRows); setChecks(verificationRows) }).catch(error => setNotice(error instanceof Error ? error.message : 'Admin access is required.')) }, [])
+  const stats = useMemo(() => ({ patients: users.filter(user => user.role === 'patient').length, doctors: users.filter(user => user.role === 'doctor' && user.status === 'active').length }), [users])
 
+  return <AppLayout role="admin"><Topbar search="Search systems, users, or records…" /><main className="dashboard admin-dashboard">
+    <h1>Admin Management Portal</h1><div className="summary-row"><Metric label="TOTAL PATIENTS" value={String(stats.patients)} note="Database accounts" /><Metric label="ACTIVE DOCTORS" value={String(stats.doctors)} note="Approved accounts" /><Metric label="PENDING VERIFICATIONS" value={String(checks.length)} note="Awaiting review" /></div>
+    <div className="dashboard-grid admin-grid"><Card title="User Management" className="table-card"><a className="new-user" href="#/admin/users">View all users</a><div className="user-table"><div className="table-head"><span>USER</span><span>ROLE</span><span>STATUS</span><span>ACTIONS</span></div>{users.slice(0, 6).map(user => <div className="table-row" key={user.id}><span className="initials">{initials(user.full_name)}</span><div><b>{user.full_name}</b><small>Joined {new Date(user.created_at).toLocaleDateString()}</small></div><span>{user.role}</span><span className={`status ${user.status}`}>{user.status}</span><a href="#/admin/users">⋮</a></div>)}</div>{!users.length && <p className="dashboard-empty">No database users are available.</p>}</Card><aside><Card title="Pending Verifications" className="verification">{checks.slice(0, 4).map(item => <div key={item.id}><b>{item.doctor?.full_name || 'Doctor applicant'}</b><small>{item.specialization} · {item.university}</small><a className="outline" href="#/admin/verifications">Review application</a></div>)}{!checks.length && <p className="dashboard-empty">No pending applications.</p>}</Card></aside></div>
+    {notice && <p className="auth-message">{notice}</p>}
+  </main></AppLayout>
+}
+
+function initials(name?: string) { return String(name || 'U').split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() }

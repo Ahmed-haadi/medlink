@@ -8,6 +8,7 @@ import DoctorModule from './pages/doctor/DoctorModule'
 import AdminModule from './pages/admin/AdminModule'
 import ReportsPage from './pages/ReportsPage'
 import './styles.css'
+import './clinical-theme.css'
 
 export default function App() {
   const [route, setRoute] = useState(window.location.hash)
@@ -21,9 +22,14 @@ export default function App() {
   if (route === '#/patient/dashboard') return <PatientDashboard />
   if (route === '#/doctor/dashboard') return <DoctorDashboard />
   if (route === '#/admin/dashboard') return <AdminDashboard />
-  if (route === '#/patient/care') return <PatientModule />
-  if (route === '#/doctor/workspace') return <DoctorModule />
-  if (route === '#/admin/manage') return <AdminModule />
-  if (route === '#/reports') return <ReportsPage />
+  if (route.startsWith('#/patient/doctors') || route.startsWith('#/patient/consultations') || route.startsWith('#/patient/discussions')) return <PatientModule />
+  if (route.startsWith('#/doctor/consultations') || route.startsWith('#/doctor/discussions') || route.startsWith('#/doctor/tools')) return <DoctorModule />
+  if (route === '#/admin/tools') return <AdminModule view="tools" />
+  if (route === '#/admin/users') return <AdminModule view="users" />
+  if (route === '#/admin/verifications') return <AdminModule view="verifications" />
+  if (route === '#/admin/analytics') return <AdminModule view="analytics" />
+  if (route === '#/admin/moderation') return <AdminModule view="moderation" />
+  if (route === '#/patient/reports' || route === '#/reports') return <ReportsPage role="patient" />
+  if (route === '#/doctor/reports') return <ReportsPage role="doctor" />
   return <AuthPage />
 }

@@ -1,7 +1,10 @@
 import { supabase } from './supabase'
 
 export async function currentUserId() { const { data } = await supabase.auth.getUser(); if (!data.user) throw new Error('Please sign in first.'); return data.user.id }
-export async function doctors() { const { data, error } = await supabase.from('profiles').select('id, full_name, phone').eq('role', 'doctor').eq('status', 'active'); if (error) throw error; return data ?? [] }
+export async function currentProfile() { const id = await currentUserId(); const { data, error } = await supabase.from('profiles').select('id, full_name, role, status').eq('id', id).single(); if (error) throw error; return data }
+export async function patientAppointments() { const id = await currentUserId(); const { data, error } = await supabase.from('appointments').select('id, scheduled_at, reason, status, meeting_url, doctor:profiles!appointments_doctor_id_fkey(full_name)').eq('patient_id', id).order('scheduled_at', { ascending: false }).limit(5); if (error) throw error; return data ?? [] }
+export async function doctorAppointments() { const id = await currentUserId(); const { data, error } = await supabase.from('appointments').select('id, scheduled_at, reason, status, meeting_url, patient:profiles!appointments_patient_id_fkey(full_name)').eq('doctor_id', id).order('scheduled_at', { ascending: false }).limit(8); if (error) throw error; return data ?? [] }
+export async function doctors() { const { data, error } = await supabase.rpc('list_verified_doctors'); if (error) throw error; return data ?? [] }
 export async function requestAppointment(doctorId: string, scheduledAt: string, reason: string) { const patientId = await currentUserId(); const { error } = await supabase.from('appointments').insert({ patient_id: patientId, doctor_id: doctorId, scheduled_at: scheduledAt, reason }); if (error) throw error }
 export async function conversations() { const { data, error } = await supabase.from('conversations').select('id, patient_id, doctor_id, updated_at').order('updated_at', { ascending: false }); if (error) throw error; return data ?? [] }
 export async function messages(conversationId: string) { const { data, error } = await supabase.from('messages').select('*').eq('conversation_id', conversationId).order('sent_at'); if (error) throw error; return data ?? [] }
@@ -10,7 +13,6 @@ export async function discussionThreads() { const { data, error } = await supaba
 export async function createThread(title: string, body: string, specialty: string) { const author_id = await currentUserId(); const { error } = await supabase.from('discussion_threads').insert({ author_id, title, body, specialty, is_anonymized: true }); if (error) throw error }
 export async function reports() { const { data, error } = await supabase.from('reports').select('*').order('created_at', { ascending: false }); if (error) throw error; return data ?? [] }
 export async function adminUsers() { const { data, error } = await supabase.from('profiles').select('id, full_name, role, status, created_at').order('created_at', { ascending: false }); if (error) throw error; return data ?? [] }
-export async function pendingVerifications() { const { data, error } = await supabase.from('doctor_verifications').select('*').eq('status', 'pending'); if (error) throw error; return data ?? [] }
+export async function pendingVerifications() { const { data, error } = await supabase.from('doctor_verifications').select('*, doctor:profiles!doctor_verifications_doctor_id_fkey(full_name)').eq('status', 'pending'); if (error) throw error; return data ?? [] }
 export async function reviewVerification(id: string, approved: boolean) { const { error } = await supabase.rpc('admin_review_doctor_verification', { verification_uuid: id, approved, note: approved ? null : 'Verification declined by administrator' }); if (error) throw error }
 export async function changeUserStatus(id: string, status: 'active' | 'suspended') { const { error } = await supabase.rpc('admin_update_account_status', { target_user: id, next_status: status }); if (error) throw error }
-
