@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 
 export async function currentUserId() { const { data } = await supabase.auth.getUser(); if (!data.user) throw new Error('Please sign in first.'); return data.user.id }
-export async function currentProfile() { const id = await currentUserId(); const { data, error } = await supabase.from('profiles').select('id, full_name, role, status').eq('id', id).single(); if (error) throw error; return data }
+export async function currentProfile() { const id = await currentUserId(); const { data, error } = await supabase.from('profiles').select('id, full_name, role, status, avatar_path').eq('id', id).single(); if (error) throw error; return data }
 export async function patientAppointments() { const id = await currentUserId(); const { data, error } = await supabase.from('appointments').select('id, scheduled_at, reason, status, meeting_url, doctor:profiles!appointments_doctor_id_fkey(full_name)').eq('patient_id', id).order('scheduled_at', { ascending: false }).limit(5); if (error) throw error; return data ?? [] }
 export async function doctorAppointments() { const id = await currentUserId(); const { data, error } = await supabase.from('appointments').select('id, scheduled_at, reason, status, meeting_url, patient:profiles!appointments_patient_id_fkey(full_name)').eq('doctor_id', id).order('scheduled_at', { ascending: false }).limit(8); if (error) throw error; return data ?? [] }
 export async function doctors() { const { data, error } = await supabase.rpc('list_verified_doctors'); if (error) throw error; return data ?? [] }

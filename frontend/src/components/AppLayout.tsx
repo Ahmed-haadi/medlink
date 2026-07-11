@@ -2,7 +2,7 @@ import { useEffect, useState, type PropsWithChildren, type ReactNode } from 'rea
 import type { UserRole } from '../types/auth'
 import { supabase } from '../services/supabase'
 
-type IconName = 'dashboard' | 'search' | 'records' | 'consultations' | 'discussions' | 'admin' | 'users' | 'verify' | 'analytics' | 'moderation' | 'theme' | 'logout' | 'brand' | 'menu' | 'close'
+type IconName = 'dashboard' | 'search' | 'records' | 'consultations' | 'discussions' | 'admin' | 'users' | 'verify' | 'analytics' | 'moderation' | 'profile' | 'theme' | 'logout' | 'brand' | 'menu' | 'close'
 
 function Icon({ name }: { name: IconName }) {
   const common = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
@@ -18,6 +18,7 @@ function Icon({ name }: { name: IconName }) {
     verify: <><path d="M12 3 4 6v5c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V6z" /><path d="m9 12 2 2 4-4" /></>,
     analytics: <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></>,
     moderation: <><path d="M12 3 3 7v5c0 4.5 3.8 7.7 9 9 5.2-1.3 9-4.5 9-9V7z" /><path d="m9 9 6 6M15 9l-6 6" /></>,
+    profile: <><circle cx="12" cy="8" r="4" /><path d="M4 21c.8-5 3.6-7 8-7s7.2 2 8 7" /></>,
     theme: <><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" /><circle cx="12" cy="12" r="4" /></>,
     logout: <><path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9" /></>,
     menu: <><path d="M4 7h16M4 12h16M4 17h16" /></>,
@@ -27,15 +28,15 @@ function Icon({ name }: { name: IconName }) {
 }
 
 const items: Record<UserRole, Array<{ label: string; icon: IconName }>> = {
-  patient: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Find a Doctor', icon: 'search' }, { label: 'Medical Records', icon: 'records' }, { label: 'Consultations', icon: 'consultations' }, { label: 'Discussions', icon: 'discussions' }],
-  doctor: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Consultations', icon: 'consultations' }, { label: 'Medical Records', icon: 'records' }, { label: 'Discussions', icon: 'discussions' }, { label: 'Admin Tools', icon: 'admin' }],
-  admin: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Admin Tools', icon: 'admin' }, { label: 'User Management', icon: 'users' }, { label: 'Doctor Verification', icon: 'verify' }, { label: 'Analytics', icon: 'analytics' }, { label: 'Content Moderation', icon: 'moderation' }],
+  patient: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Find a Doctor', icon: 'search' }, { label: 'Medical Records', icon: 'records' }, { label: 'Consultations', icon: 'consultations' }, { label: 'Discussions', icon: 'discussions' }, { label: 'Profile', icon: 'profile' }],
+  doctor: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Consultations', icon: 'consultations' }, { label: 'Medical Records', icon: 'records' }, { label: 'Discussions', icon: 'discussions' }, { label: 'Admin Tools', icon: 'admin' }, { label: 'Profile', icon: 'profile' }],
+  admin: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Admin Tools', icon: 'admin' }, { label: 'User Management', icon: 'users' }, { label: 'Doctor Verification', icon: 'verify' }, { label: 'Analytics', icon: 'analytics' }, { label: 'Content Moderation', icon: 'moderation' }, { label: 'Profile', icon: 'profile' }],
 }
 
 const routes: Record<UserRole, Record<string, string>> = {
-  patient: { Dashboard: '#/patient/dashboard', 'Find a Doctor': '#/patient/doctors', 'Medical Records': '#/patient/reports', Consultations: '#/patient/consultations', Discussions: '#/patient/discussions' },
-  doctor: { Dashboard: '#/doctor/dashboard', Consultations: '#/doctor/consultations', 'Medical Records': '#/doctor/reports', Discussions: '#/doctor/discussions', 'Admin Tools': '#/doctor/tools' },
-  admin: { Dashboard: '#/admin/dashboard', 'Admin Tools': '#/admin/tools', 'User Management': '#/admin/users', 'Doctor Verification': '#/admin/verifications', Analytics: '#/admin/analytics', 'Content Moderation': '#/admin/moderation' },
+  patient: { Dashboard: '#/patient/dashboard', 'Find a Doctor': '#/patient/doctors', 'Medical Records': '#/patient/reports', Consultations: '#/patient/consultations', Discussions: '#/patient/discussions', Profile: '#/patient/profile' },
+  doctor: { Dashboard: '#/doctor/dashboard', Consultations: '#/doctor/consultations', 'Medical Records': '#/doctor/reports', Discussions: '#/doctor/discussions', 'Admin Tools': '#/doctor/tools', Profile: '#/doctor/profile' },
+  admin: { Dashboard: '#/admin/dashboard', 'Admin Tools': '#/admin/tools', 'User Management': '#/admin/users', 'Doctor Verification': '#/admin/verifications', Analytics: '#/admin/analytics', 'Content Moderation': '#/admin/moderation', Profile: '#/admin/profile' },
 }
 
 export default function AppLayout({ role, children }: PropsWithChildren<{ role: UserRole }>) {
