@@ -58,3 +58,49 @@ html,body,#root{min-height:100%;background:var(--surface)}body{font-family:'Plus
 .theme-dark .section-heading>span{background:rgba(104,185,255,.1);color:#b8d9f4}.theme-dark .status.active,.theme-dark .safe-chip,.theme-dark .doctor-card i{color:#a9dec0;background:rgba(40,112,80,.32)}.theme-dark .status.suspended,.theme-dark .review-chip{color:#ffb5b5;background:rgba(151,55,64,.3)}
 .theme-dark .specialist-panel,.theme-dark .find-card{background:linear-gradient(145deg,rgba(15,66,71,.92),rgba(8,42,48,.86));border:1px solid rgba(126,211,210,.16);box-shadow:0 24px 55px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.07);backdrop-filter:blur(22px)}
 .theme-dark .auth-page{background:radial-gradient(circle at 16% 12%,rgba(42,119,172,.18),transparent 30%),#07111f}.theme-dark .auth-panel{position:relative}.theme-dark .auth-message{background:rgba(30,82,119,.28);color:#baddf7;border:1px solid rgba(104,185,255,.16)}
+
+/* Mobile navigation and responsive layout */
+.mobile-menu-toggle,.sidebar-backdrop{display:none}
+@media(max-width:800px){
+  body.mobile-menu-locked{overflow:hidden}
+  .app-shell{display:block;min-height:100vh}
+  .workspace{width:100%;min-height:100vh}
+  .mobile-menu-toggle{position:fixed;top:14px;left:14px;z-index:70;display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid rgba(118,156,190,.25);border-radius:14px;background:rgba(248,249,255,.82);color:var(--ink);box-shadow:0 10px 28px rgba(14,42,69,.16);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  .mobile-menu-toggle .nav-icon{width:23px;height:23px}
+  .sidebar-backdrop{position:fixed;inset:0;z-index:48;display:block;width:100%;height:100%;padding:0;background:rgba(2,10,20,.55);opacity:0;pointer-events:none;transition:opacity .24s ease;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+  .sidebar{position:fixed!important;inset:0 auto 0 0;z-index:55;width:min(304px,86vw)!important;height:100dvh;padding:76px 16px 18px!important;transform:translateX(-105%);transition:transform .26s cubic-bezier(.2,.8,.2,1);box-shadow:18px 0 48px rgba(0,0,0,.2);overflow-y:auto}
+  .mobile-nav-open .sidebar{transform:translateX(0)}
+  .mobile-nav-open .sidebar-backdrop{opacity:1;pointer-events:auto}
+  .sidebar .brand{justify-content:flex-start;margin:0 8px 8px}
+  .sidebar .brand>span:last-child{display:inline!important;font-size:21px!important}
+  .sidebar .role-label{display:block!important;margin:5px 0 22px 56px!important;font-size:10px!important}
+  .sidebar .nav-item{justify-content:flex-start!important;height:auto!important;padding:13px 16px!important;font-size:13px!important}
+  .sidebar .nav-item .nav-icon{width:23px;height:23px}
+  .sidebar-footer{border-top:1px solid rgba(121,153,183,.2)!important;padding-top:14px}
+  .topbar{height:72px;padding:0 18px 0 72px!important}
+  .topbar .search{width:min(100%,280px)}
+  .dashboard,.feature-page{width:100%;padding:24px 16px 36px!important}
+  .dashboard-grid,.admin-grid,.module-grid,.patient-content-grid,.health-strip{grid-template-columns:minmax(0,1fr)!important;gap:16px}
+  .summary-row,.metrics-row,.two-up{grid-template-columns:minmax(0,1fr)!important;gap:12px}
+  .welcome-row,.patient-hero{align-items:flex-start!important;flex-direction:column;gap:18px}
+  .welcome-row .primary,.patient-hero .primary{width:100%;text-align:center}
+  .card,.module-card{padding:18px;border-radius:16px}
+  .module-card{margin:12px 0}
+  .doctor-directory,.appointment-card{min-height:0}
+  .verification-row,.admin-user-row{grid-template-columns:38px minmax(0,1fr)!important;gap:10px}
+  .verification-actions{grid-column:1/-1!important;width:100%;padding-left:48px;flex-wrap:nowrap}
+  .verification-page .verification-row .approve,.verification-page .verification-row .reject{flex:1;min-width:0}
+  .admin-user-row .status,.admin-user-row .outline{grid-column:2}
+  .table-card{overflow-x:auto}.user-table{min-width:620px}
+  .report-actions{display:grid;grid-template-columns:1fr;gap:10px}.report-actions .primary,.report-actions .outline{width:100%}
+  .timeline-item{grid-template-columns:44px minmax(0,1fr)}.timeline-item>a{grid-column:2;width:max-content}
+}
+.theme-dark .mobile-menu-toggle{background:rgba(12,27,44,.82);border-color:rgba(128,177,218,.22);color:#eaf4ff;box-shadow:0 12px 30px rgba(0,0,0,.3)}
+@media(max-width:520px){
+  .topbar .search{display:none}.topbar{justify-content:flex-end}
+  .welcome-row h1,.patient-hero h1,.admin-dashboard>h1,.feature-page h1{font-size:24px!important;line-height:31px!important}
+  .feature-note,.welcome-row p{font-size:13px;line-height:21px}
+  .doctor-card{grid-template-columns:40px minmax(0,1fr)}.doctor-card i{grid-column:2}
+  .verification-actions{padding-left:0}.verification-page .verification-row .approve,.verification-page .verification-row .reject{height:42px}
+  .auth-panel{width:min(100% - 32px,460px)}.auth-copy h1{font-size:28px}
+}
