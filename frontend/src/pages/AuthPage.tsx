@@ -1,11 +1,11 @@
 import { FormEvent, useState } from 'react'
 import { dashboardPathFor, signIn, signUpDoctor, signUpPatient } from '../services/auth'
 
-type Mode = 'login' | 'patient-signup' | 'doctor-signup'
+export type AuthMode = 'login' | 'patient-signup' | 'doctor-signup'
 type SuccessState = { title: string; body: string; detail: string } | null
 
-export default function AuthPage() {
-  const [mode, setMode] = useState<Mode>('login')
+export default function AuthPage({ initialMode = 'login' }: { initialMode?: AuthMode }) {
+  const [mode, setMode] = useState<AuthMode>(initialMode)
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState<SuccessState>(null)
@@ -48,7 +48,7 @@ export default function AuthPage() {
     }
   }
 
-  function changeMode(nextMode: Mode) { setMode(nextMode); setMessage(''); setSuccess(null) }
+  function changeMode(nextMode: AuthMode) { setMode(nextMode); setMessage(''); setSuccess(null) }
   function closeSuccess() { setSuccess(null); changeMode('login') }
 
   const signingUp = mode !== 'login'

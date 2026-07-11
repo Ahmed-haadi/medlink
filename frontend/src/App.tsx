@@ -7,8 +7,10 @@ import PatientModule from './pages/patient/PatientModule'
 import DoctorModule from './pages/doctor/DoctorModule'
 import AdminModule from './pages/admin/AdminModule'
 import ReportsPage from './pages/ReportsPage'
+import LandingPage from './pages/LandingPage'
 import './styles.css'
 import './clinical-theme.css'
+import './landing-fixes.css'
 
 export default function App() {
   const [route, setRoute] = useState(window.location.hash)
@@ -19,6 +21,10 @@ export default function App() {
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
 
+  if (!route || route === '#' || route === '#/' || ['#hero', '#features', '#about', '#contact'].includes(route) || route.startsWith('#/landing/')) return <LandingPage />
+  if (route === '#/login') return <AuthPage initialMode="login" />
+  if (route === '#/signup/patient') return <AuthPage initialMode="patient-signup" />
+  if (route === '#/signup/doctor') return <AuthPage initialMode="doctor-signup" />
   if (route === '#/patient/dashboard') return <PatientDashboard />
   if (route === '#/doctor/dashboard') return <DoctorDashboard />
   if (route === '#/admin/dashboard') return <AdminDashboard />
