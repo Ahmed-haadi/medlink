@@ -1,0 +1,10 @@
+import AppLayout from '../../components/AppLayout'
+import { Card, Metric, Topbar } from '../../components/DashboardUi'
+
+const users = [['JD', 'John Doe', 'john.doe@email.com', 'Patient', 'ACTIVE'], ['MK', 'Maria Kowalski', 'm.kowalski@hospital.org', 'Doctor', 'ACTIVE'], ['LB', 'Lucas Brown', 'brown@med.com', 'Patient', 'SUSPENDED']]
+export default function AdminDashboard() { return <AppLayout role="admin"><Topbar search="Search systems, users, or records…" /><main className="dashboard admin-dashboard">
+  <h1>Admin Management Portal</h1><div className="summary-row"><Metric label="TOTAL PATIENTS" value="12,842" note="↑ 4.2%" /><Metric label="VERIFIED DOCTORS" value="1,402" note="↑ 2.1%" /><Card title="WEEKLY CONSULTATIONS" className="mini-chart"><small>Week 42</small><div className="bar-chart">{[32, 50, 70, 96, 28].map((height, i) => <span key={i} style={{ height: `${height}%` }} />)}</div></Card></div>
+  <div className="dashboard-grid admin-grid"><Card title="User Management" className="table-card"><button className="new-user">＋ New User</button><div className="user-table"><div className="table-head"><span>USER</span><span>ROLE</span><span>STATUS</span><span>ACTIONS</span></div>{users.map(([initials,name,email,role,status]) => <div className="table-row" key={name}><span className="initials">{initials}</span><div><b>{name}</b><small>{email}</small></div><span>{role}</span><span className={`status ${status.toLowerCase()}`}>{status}</span><span>⋮</span></div>)}</div></Card><aside><Card title="Pending Verifications" className="verification"><div><b>Dr. Aris Thorne</b><small>Cardiologist · 12 yrs exp.</small><button className="approve">Approve</button><button className="reject">Reject</button></div><div><b>Dr. Samuel Higgins</b><small>Pediatrics · 8 yrs exp.</small><button className="approve">Approve</button><button className="reject">Reject</button></div></Card></aside></div>
+  <Card className="maintenance">△ System maintenance scheduled in 2 hours. Some verification services may be temporarily unavailable.</Card>
+</main></AppLayout> }
+

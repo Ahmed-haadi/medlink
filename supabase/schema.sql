@@ -1,0 +1,2 @@
+-- Source of truth: migrations/20260710170000_create_medlink_core_schema.sql
+-- Applied remotely as the create_medlink_core_schema migration.
