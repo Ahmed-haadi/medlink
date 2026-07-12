@@ -1,0 +1,21 @@
+alter type public.message_type add value if not exists 'image';
+alter type public.message_type add value if not exists 'pdf';
+alter type public.message_type add value if not exists 'video';
+alter table public.messages add column if not exists delivered_at timestamptz, add column if not exists status text not null default 'sent', add column if not exists file_name text, add column if not exists file_size bigint, add column if not exists mime_type text, add column if not exists duration_seconds integer;
+do $$ begin alter table public.messages add constraint messages_status_check check (status in ('sent','delivered','read')); exception when duplicate_object then null; end $$;
+
+create table if not exists public.typing_indicators (conversation_id uuid not null references public.conversations(id) on delete cascade, user_id uuid not null references public.profiles(id) on delete cascade, is_typing boolean not null default false, updated_at timestamptz not null default timezone('utc', now()), primary key (conversation_id,user_id));
+alter table public.typing_indicators enable row level security;
+drop policy if exists "typing_select_participants" on public.typing_indicators;
+create policy "typing_select_participants" on public.typing_indicators for select to authenticated using (exists (select 1 from public.conversations c where c.id=conversation_id and ((select auth.uid()) in (c.patient_id,c.doctor_id))));
+drop policy if exists "typing_insert_own" on public.typing_indicators;
+create policy "typing_insert_own" on public.typing_indicators for insert to authenticated with check (user_id=(select auth.uid()) and exists (select 1 from public.conversations c where c.id=conversation_id and ((select auth.uid()) in (c.patient_id,c.doctor_id))));
+drop policy if exists "typing_update_own" on public.typing_indicators;
+create policy "typing_update_own" on public.typing_indicators for update to authenticated using (user_id=(select auth.uid())) with check (user_id=(select auth.uid()) and exists (select 1 from public.conversations c where c.id=conversation_id and ((select auth.uid()) in (c.patient_id,c.doctor_id))));
+drop policy if exists "messages_update_delivery_by_recipient" on public.messages;
+create policy "messages_update_delivery_by_recipient" on public.messages for update to authenticated using (sender_id<>(select auth.uid()) and exists (select 1 from public.conversations c where c.id=messages.conversation_id and ((select auth.uid()) in (c.patient_id,c.doctor_id)))) with check (sender_id<>(select auth.uid()) and exists (select 1 from public.conversations c where c.id=messages.conversation_id and ((select auth.uid()) in (c.patient_id,c.doctor_id))));
+grant select,insert on public.messages to authenticated; revoke update on public.messages from authenticated; grant update(delivered_at,read_at,status) on public.messages to authenticated; grant select,insert,update on public.typing_indicators to authenticated;
+update storage.buckets set file_size_limit=26214400, allowed_mime_types=array['application/pdf','image/jpeg','image/png','image/webp','audio/mpeg','audio/webm','audio/mp4','video/mp4','video/webm','video/quicktime'] where id='chat-files';
+drop policy if exists "chat_files_participants_delete" on storage.objects;
+create policy "chat_files_participants_delete" on storage.objects for delete to authenticated using (bucket_id='chat-files' and exists (select 1 from public.conversations c where c.id::text=(storage.foldername(name))[1] and ((select auth.uid()) in (c.patient_id,c.doctor_id))));
+do $$ begin if not exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='messages') then alter publication supabase_realtime add table public.messages; end if; if not exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='typing_indicators') then alter publication supabase_realtime add table public.typing_indicators; end if; end $$;

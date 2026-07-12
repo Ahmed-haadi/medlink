@@ -9,6 +9,7 @@ import AdminModule from './pages/admin/AdminModule'
 import ReportsPage from './pages/ReportsPage'
 import LandingPage from './pages/LandingPage'
 import ProfilePage from './pages/ProfilePage'
+import ChatPage from './pages/ChatPage'
 import './styles.css'
 import './clinical-theme.css'
 import './landing-fixes.css'
@@ -32,6 +33,8 @@ export default function App() {
   if (route === '#/patient/profile') return <ProfilePage role="patient" />
   if (route === '#/doctor/profile') return <ProfilePage role="doctor" />
   if (route === '#/admin/profile') return <ProfilePage role="admin" />
+  if (route === '#/patient/chat') return <ChatPage role="patient" />
+  if (route === '#/doctor/chat') return <ChatPage role="doctor" />
   if (route.startsWith('#/patient/doctors') || route.startsWith('#/patient/consultations') || route.startsWith('#/patient/discussions')) return <PatientModule />
   if (route.startsWith('#/doctor/consultations') || route.startsWith('#/doctor/discussions') || route.startsWith('#/doctor/tools')) return <DoctorModule />
   if (route === '#/admin/tools') return <AdminModule view="tools" />

@@ -2,7 +2,7 @@ import { useEffect, useState, type PropsWithChildren, type ReactNode } from 'rea
 import type { UserRole } from '../types/auth'
 import { supabase } from '../services/supabase'
 
-type IconName = 'dashboard' | 'search' | 'records' | 'consultations' | 'discussions' | 'admin' | 'users' | 'verify' | 'analytics' | 'moderation' | 'profile' | 'theme' | 'logout' | 'brand' | 'menu' | 'close'
+type IconName = 'dashboard' | 'search' | 'records' | 'consultations' | 'discussions' | 'chat' | 'admin' | 'users' | 'verify' | 'analytics' | 'moderation' | 'profile' | 'theme' | 'logout' | 'brand' | 'menu' | 'close'
 
 function Icon({ name }: { name: IconName }) {
   const common = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
@@ -13,6 +13,7 @@ function Icon({ name }: { name: IconName }) {
     records: <><path d="M6 2h9l4 4v16H6z" /><path d="M15 2v5h5M9 13h6M9 17h6" /></>,
     consultations: <><path d="M4 5h16v13H8l-4 4z" /><path d="M8 9h8M8 13h5" /></>,
     discussions: <><path d="M4 5h14v11H8l-4 4z" /><path d="M9 9h10v10h-8l-3 3" /></>,
+    chat: <><path d="M21 15a4 4 0 0 1-4 4H8l-5 3 1.6-4.8A7 7 0 0 1 3 13V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" /><path d="M8 10h.01M12 10h.01M16 10h.01" /></>,
     admin: <><path d="M12 3 4 6v5c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V6z" /><path d="M9 12h6M12 9v6" /></>,
     users: <><circle cx="9" cy="8" r="3" /><path d="M3 20c.6-4 3-6 6-6s5.4 2 6 6M16 5a3 3 0 0 1 0 6M17 14c2.3.3 3.8 2.2 4 5" /></>,
     verify: <><path d="M12 3 4 6v5c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V6z" /><path d="m9 12 2 2 4-4" /></>,
@@ -28,14 +29,14 @@ function Icon({ name }: { name: IconName }) {
 }
 
 const items: Record<UserRole, Array<{ label: string; icon: IconName }>> = {
-  patient: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Find a Doctor', icon: 'search' }, { label: 'Medical Records', icon: 'records' }, { label: 'Consultations', icon: 'consultations' }, { label: 'Discussions', icon: 'discussions' }, { label: 'Profile', icon: 'profile' }],
-  doctor: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Consultations', icon: 'consultations' }, { label: 'Medical Records', icon: 'records' }, { label: 'Discussions', icon: 'discussions' }, { label: 'Admin Tools', icon: 'admin' }, { label: 'Profile', icon: 'profile' }],
+  patient: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Find a Doctor', icon: 'search' }, { label: 'Chat', icon: 'chat' }, { label: 'Medical Records', icon: 'records' }, { label: 'Consultations', icon: 'consultations' }, { label: 'Discussions', icon: 'discussions' }, { label: 'Profile', icon: 'profile' }],
+  doctor: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Chat', icon: 'chat' }, { label: 'Consultations', icon: 'consultations' }, { label: 'Medical Records', icon: 'records' }, { label: 'Discussions', icon: 'discussions' }, { label: 'Admin Tools', icon: 'admin' }, { label: 'Profile', icon: 'profile' }],
   admin: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Admin Tools', icon: 'admin' }, { label: 'User Management', icon: 'users' }, { label: 'Doctor Verification', icon: 'verify' }, { label: 'Analytics', icon: 'analytics' }, { label: 'Content Moderation', icon: 'moderation' }, { label: 'Profile', icon: 'profile' }],
 }
 
 const routes: Record<UserRole, Record<string, string>> = {
-  patient: { Dashboard: '#/patient/dashboard', 'Find a Doctor': '#/patient/doctors', 'Medical Records': '#/patient/reports', Consultations: '#/patient/consultations', Discussions: '#/patient/discussions', Profile: '#/patient/profile' },
-  doctor: { Dashboard: '#/doctor/dashboard', Consultations: '#/doctor/consultations', 'Medical Records': '#/doctor/reports', Discussions: '#/doctor/discussions', 'Admin Tools': '#/doctor/tools', Profile: '#/doctor/profile' },
+  patient: { Dashboard: '#/patient/dashboard', 'Find a Doctor': '#/patient/doctors', Chat: '#/patient/chat', 'Medical Records': '#/patient/reports', Consultations: '#/patient/consultations', Discussions: '#/patient/discussions', Profile: '#/patient/profile' },
+  doctor: { Dashboard: '#/doctor/dashboard', Chat: '#/doctor/chat', Consultations: '#/doctor/consultations', 'Medical Records': '#/doctor/reports', Discussions: '#/doctor/discussions', 'Admin Tools': '#/doctor/tools', Profile: '#/doctor/profile' },
   admin: { Dashboard: '#/admin/dashboard', 'Admin Tools': '#/admin/tools', 'User Management': '#/admin/users', 'Doctor Verification': '#/admin/verifications', Analytics: '#/admin/analytics', 'Content Moderation': '#/admin/moderation', Profile: '#/admin/profile' },
 }
 
