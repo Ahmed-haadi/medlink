@@ -29,13 +29,13 @@ function Icon({ name }: { name: IconName }) {
 }
 
 const items: Record<UserRole, Array<{ label: string; icon: IconName }>> = {
-  patient: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Find a Doctor', icon: 'search' }, { label: 'Chat', icon: 'chat' }, { label: 'Medical Records', icon: 'records' }, { label: 'Consultations', icon: 'consultations' }, { label: 'Discussions', icon: 'discussions' }, { label: 'Profile', icon: 'profile' }],
+  patient: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Find a Doctor', icon: 'search' }, { label: 'Chat', icon: 'chat' }, { label: 'Medical Records', icon: 'records' }, { label: 'Profile', icon: 'profile' }],
   doctor: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Chat', icon: 'chat' }, { label: 'Consultations', icon: 'consultations' }, { label: 'Medical Records', icon: 'records' }, { label: 'Discussions', icon: 'discussions' }, { label: 'Admin Tools', icon: 'admin' }, { label: 'Profile', icon: 'profile' }],
   admin: [{ label: 'Dashboard', icon: 'dashboard' }, { label: 'Admin Tools', icon: 'admin' }, { label: 'User Management', icon: 'users' }, { label: 'Doctor Verification', icon: 'verify' }, { label: 'Analytics', icon: 'analytics' }, { label: 'Content Moderation', icon: 'moderation' }, { label: 'Profile', icon: 'profile' }],
 }
 
 const routes: Record<UserRole, Record<string, string>> = {
-  patient: { Dashboard: '#/patient/dashboard', 'Find a Doctor': '#/patient/doctors', Chat: '#/patient/chat', 'Medical Records': '#/patient/reports', Consultations: '#/patient/consultations', Discussions: '#/patient/discussions', Profile: '#/patient/profile' },
+  patient: { Dashboard: '#/patient/dashboard', 'Find a Doctor': '#/patient/doctors', Chat: '#/patient/chat', 'Medical Records': '#/patient/reports', Profile: '#/patient/profile' },
   doctor: { Dashboard: '#/doctor/dashboard', Chat: '#/doctor/chat', Consultations: '#/doctor/consultations', 'Medical Records': '#/doctor/reports', Discussions: '#/doctor/discussions', 'Admin Tools': '#/doctor/tools', Profile: '#/doctor/profile' },
   admin: { Dashboard: '#/admin/dashboard', 'Admin Tools': '#/admin/tools', 'User Management': '#/admin/users', 'Doctor Verification': '#/admin/verifications', Analytics: '#/admin/analytics', 'Content Moderation': '#/admin/moderation', Profile: '#/admin/profile' },
 }

@@ -35,7 +35,8 @@ export default function App() {
   if (route === '#/admin/profile') return <ProfilePage role="admin" />
   if (route === '#/patient/chat') return <ChatPage role="patient" />
   if (route === '#/doctor/chat') return <ChatPage role="doctor" />
-  if (route.startsWith('#/patient/doctors') || route.startsWith('#/patient/consultations') || route.startsWith('#/patient/discussions')) return <PatientModule />
+  if (route.startsWith('#/patient/consultations') || route.startsWith('#/patient/discussions')) return <PatientDashboard />
+  if (route.startsWith('#/patient/doctors')) return <PatientModule />
   if (route.startsWith('#/doctor/consultations') || route.startsWith('#/doctor/discussions') || route.startsWith('#/doctor/tools')) return <DoctorModule />
   if (route === '#/admin/tools') return <AdminModule view="tools" />
   if (route === '#/admin/users') return <AdminModule view="users" />
