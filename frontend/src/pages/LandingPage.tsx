@@ -1,4 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { supabase } from '../services/supabase'
+import { getSignedAvatar } from '../services/profile'
+import type { UserRole } from '../types/auth'
 
 const heroImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuA8s1ZGTQ0N3rxF6Ip67r4kfinqAFuc_LC1HsUQ9JImcPqa4_PLd4Pi_MmaNQwTqycUijbqSzrZO8axH7GaFq2BzsExHc-OdQB2bsVXP8zdvpOsNdmIAgTof2MFRwDRdaa2wW4YTeuWFzYKQf2-HdWOwwQ3NZa-yHyHuM8WWeDt6AV3LFqfYLFKEfyXPsIcNjzOk26baEjzoymdMJJ5MpUGVwMm7_cfOtORRlr4u4sQBfo_exlDm1c'
 const aboutImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAAfAw8IZvmiwgixe5Io7xeIAIVFDZF3lYfOgwsNycfe-EloT77caHmHeTDaOJhJRz5yB0PTo8BR_BD2T3uBnksrtt4LlkUgo1RbAnqfuQKRkz0LpO11nyYfcX3Yb9T-8vyAn2wmIQry5HBvbKkupsj2kV-4DuKHjQq3AITa1KybSRJtnYx65bE2eqYSHKZ-WWGiAjtxcmd5yo5TDnT2iBspF-GUKJ5oy7TdrodFp-xhDzuBR4ZKqA'
@@ -11,6 +14,8 @@ const specialistImages = [
 export default function LandingPage() {
   const [dark, setDark] = useState(() => localStorage.getItem('medlink-theme') === 'dark')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
+  const [identity, setIdentity] = useState<{ name: string; role: UserRole; avatarUrl: string } | null>(null)
   useEffect(() => { document.documentElement.classList.toggle('theme-dark', dark); localStorage.setItem('medlink-theme', dark ? 'dark' : 'light') }, [dark])
   useEffect(() => {
     const scrollToSection = () => {
@@ -21,9 +26,23 @@ export default function LandingPage() {
     scrollToSection()
     return () => window.removeEventListener('hashchange', scrollToSection)
   }, [])
+  useEffect(() => {
+    let mounted = true
+    async function loadIdentity(userId?: string) {
+      if (!userId) { if (mounted) { setIdentity(null); setAuthChecked(true) }; return }
+      const { data, error } = await supabase.from('profiles').select('full_name,role,avatar_path').eq('id', userId).single()
+      if (!mounted) return
+      if (error || !data) { setIdentity(null); setAuthChecked(true); return }
+      const avatarUrl = await getSignedAvatar(data.avatar_path).catch(() => '')
+      if (mounted) { setIdentity({ name: data.full_name || 'MedLink user', role: data.role as UserRole, avatarUrl }); setAuthChecked(true) }
+    }
+    supabase.auth.getSession().then(({ data }) => loadIdentity(data.session?.user.id))
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => { window.setTimeout(() => loadIdentity(session?.user.id), 0) })
+    return () => { mounted = false; listener.subscription.unsubscribe() }
+  }, [])
 
   return <div className="landing-page">
-    <header className="landing-nav"><a className="landing-brand" href="#/landing/hero"><span>✚</span>MedLink</a><nav className={menuOpen ? 'open' : ''}><a href="#/landing/hero" onClick={() => setMenuOpen(false)}>Home</a><a href="#/landing/features" onClick={() => setMenuOpen(false)}>Features</a><a href="#/landing/about" onClick={() => setMenuOpen(false)}>About</a><a href="#/landing/contact" onClick={() => setMenuOpen(false)}>Resources</a></nav><div className="landing-actions"><button className="landing-theme" aria-label="Toggle color theme" onClick={() => setDark(value => !value)}>{dark ? '☀' : '☾'}</button><a className="landing-login" href="#/login">Login</a><a className="landing-signup" href="#/signup/patient">Sign Up</a><button className="landing-menu" aria-label="Toggle navigation" onClick={() => setMenuOpen(value => !value)}>{menuOpen ? '×' : '☰'}</button></div></header>
+    <header className="landing-nav"><a className="landing-brand" href="#/landing/hero"><span>✚</span>MedLink</a><nav className={menuOpen ? 'open' : ''}><a href="#/landing/hero" onClick={() => setMenuOpen(false)}>Home</a><a href="#/landing/features" onClick={() => setMenuOpen(false)}>Features</a><a href="#/landing/about" onClick={() => setMenuOpen(false)}>About</a><a href="#/landing/contact" onClick={() => setMenuOpen(false)}>Resources</a></nav><div className="landing-actions"><button className="landing-theme" aria-label="Toggle color theme" onClick={() => setDark(value => !value)}>{dark ? '☀' : '☾'}</button>{authChecked&&(identity?<a className="landing-user" href={`#/${identity.role}/dashboard`} aria-label={`Open ${identity.name}'s dashboard`}><span className="landing-user-avatar">{identity.avatarUrl?<img src={identity.avatarUrl} alt=""/>:initials(identity.name)}</span><span><b>{identity.name}</b><small>{identity.role} account</small></span><i>›</i></a>:<><a className="landing-login" href="#/login">Login</a><a className="landing-signup" href="#/signup/patient">Sign Up</a></>)}<button className="landing-menu" aria-label="Toggle navigation" onClick={() => setMenuOpen(value => !value)}>{menuOpen ? '×' : '☰'}</button></div></header>
 
     <main>
       <section className="landing-hero" id="hero"><div className="landing-shell hero-grid"><div className="hero-copy"><span className="trust-pill"><i /> Trusted by 10,000+ Healthcare Providers</span><h1>Connecting You<br />to <em>Care, Anywhere.</em></h1><p>A seamless bridge between patients and clinicians. Experience the future of telemedicine with real-time diagnostics, secure records, and instant consultations.</p><div className="hero-actions"><a className="hero-primary" href="#/signup/patient">Get Started Now <span>→</span></a><a className="hero-secondary" href="#/landing/features">Watch Demo</a></div><div className="specialist-proof"><div>{specialistImages.map((source, index) => <img src={source} alt="MedLink healthcare specialist" key={index} />)}</div><p>Meet our top-rated specialists online</p></div></div><div className="hero-visual"><img src={heroImage} alt="Patient attending an online medical consultation" /><div className="live-session"><span>▣</span><div><small>Consultation</small><b>Live Session Active</b></div></div></div></div></section>
@@ -42,3 +61,4 @@ export default function LandingPage() {
 function Feature({ icon, title, className, children }: { icon: string; title: string; className: string; children: ReactNode }) { return <article className={`landing-feature ${className}`}><span>{icon}</span><h3>{title}</h3><div>{children}</div></article> }
 function CareSide({ icon, title, children }: { icon: string; title: string; children: ReactNode }) { return <article className="care-side"><span>{icon}</span><div><h3>{title}</h3><p>{children}</p></div></article> }
 function FooterLinks({ title, links }: { title: string; links: string[][] }) { return <div><h3>{title}</h3><ul>{links.map(([label, href]) => <li key={label}><a href={href}>{label}</a></li>)}</ul></div> }
+function initials(name: string) { return name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'U' }
